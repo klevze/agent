@@ -1,6 +1,6 @@
 <?php
 
-use Jenssegers\Agent\Agent;
+use Klevze\Agent\Agent;
 use PHPUnit\Framework\TestCase;
 
 class AgentTest extends TestCase
