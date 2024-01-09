@@ -3,7 +3,7 @@
 namespace Klevze\Agent;
 
 use Illuminate\Support\ServiceProvider;
-use Klevze\Agent;
+use Klevze\Agent\Agent;
 
 class AgentServiceProvider extends ServiceProvider
 {

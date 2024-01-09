@@ -4,9 +4,9 @@ namespace Klevze\Agent;
 
 use BadMethodCallException;
 use Jaybizzle\CrawlerDetect\CrawlerDetect;
-use Mobile_Detect;
+use Detection\MobileDetect;
 
-class Agent extends Mobile_Detect
+class Agent extends MobileDetect
 {
     /**
      * List of desktop devices.
@@ -99,20 +99,11 @@ class Agent extends Mobile_Detect
                 static::$additionalOperatingSystems, // NEW
                 static::$browsers,
                 static::$additionalBrowsers, // NEW
-                static::$utilities
+                //static::$utilities
             );
         }
 
         return $rules;
-    }
-
-    public function getRules()
-    {
-        if ($this->detectionType === static::DETECTION_TYPE_EXTENDED) {
-            return static::getDetectionRulesExtended();
-        }
-
-        return static::getMobileDetectionRules();
     }
 
     /**
@@ -127,22 +118,6 @@ class Agent extends Mobile_Detect
         return static::$crawlerDetect;
     }
 
-    public static function getBrowsers()
-    {
-        return static::mergeRules(
-            static::$additionalBrowsers,
-            static::$browsers
-        );
-    }
-
-    public static function getOperatingSystems()
-    {
-        return static::mergeRules(
-            static::$operatingSystems,
-            static::$additionalOperatingSystems
-        );
-    }
-
     public static function getPlatforms()
     {
         return static::mergeRules(
@@ -154,14 +129,6 @@ class Agent extends Mobile_Detect
     public static function getDesktopDevices()
     {
         return static::$desktopDevices;
-    }
-
-    public static function getProperties()
-    {
-        return static::mergeRules(
-            static::$additionalProperties,
-            static::$properties
-        );
     }
 
     /**
@@ -250,7 +217,7 @@ class Agent extends Mobile_Detect
             static::getDesktopDevices(),
             static::getPhoneDevices(),
             static::getTabletDevices(),
-            static::getUtilities()
+            #static::getUtilities()
         );
 
         return $this->findDetectionRulesAgainstUA($rules, $userAgent);
@@ -331,47 +298,6 @@ class Agent extends Mobile_Detect
         return "other";
     }
 
-    public function version($propertyName, $type = self::VERSION_TYPE_STRING)
-    {
-        if (empty($propertyName)) {
-            return false;
-        }
-
-        // set the $type to the default if we don't recognize the type
-        if ($type !== self::VERSION_TYPE_STRING && $type !== self::VERSION_TYPE_FLOAT) {
-            $type = self::VERSION_TYPE_STRING;
-        }
-
-        $properties = self::getProperties();
-
-        // Check if the property exists in the properties array.
-        if (true === isset($properties[$propertyName])) {
-
-            // Prepare the pattern to be matched.
-            // Make sure we always deal with an array (string is converted).
-            $properties[$propertyName] = (array) $properties[$propertyName];
-
-            foreach ($properties[$propertyName] as $propertyMatchString) {
-                if (is_array($propertyMatchString)) {
-                    $propertyMatchString = implode("|", $propertyMatchString);
-                }
-
-                $propertyPattern = str_replace('[VER]', self::VER, $propertyMatchString);
-
-                // Identify and extract the version.
-                preg_match(sprintf('#%s#is', $propertyPattern), $this->userAgent, $match);
-
-                if (false === empty($match[1])) {
-                    $version = ($type === self::VERSION_TYPE_FLOAT ? $this->prepareVersionNo($match[1]) : $match[1]);
-
-                    return $version;
-                }
-            }
-        }
-
-        return false;
-    }
-
     /**
      * Merge multiple rules into one array.
      * @param array $all
@@ -406,7 +332,7 @@ class Agent extends Mobile_Detect
             throw new BadMethodCallException("No such method exists: $name");
         }
 
-        $this->setDetectionType(self::DETECTION_TYPE_EXTENDED);
+        //$this->setDetectionType(self::DETECTION_TYPE_EXTENDED);
 
         $key = substr($name, 2);
 
